@@ -89,11 +89,9 @@ public class MainActivity extends AppCompatActivity {
         buttonReset.setOnClickListener(view -> {
             expressaoAritmetica.setLength(0);
             textViewResultado.setText("0");
-
             if (!houveResultado) {
                 textViewUltimaExpressao.setText("");
             }
-
             houveResultado = false;
         });
 
@@ -123,10 +121,9 @@ public class MainActivity extends AppCompatActivity {
                         .replace("÷", "/")
                         .replace("×", "*");
 
+                String expressaoProcessada = processarPorcentagem(expressaoCalculada);
 
-                String expressaoCalculadaComPorcentagem = expressaoCalculada.replace("%", "/100*");
-
-                Calculable avaliadorExpressao = new ExpressionBuilder(expressaoCalculadaComPorcentagem).build();
+                Calculable avaliadorExpressao = new ExpressionBuilder(expressaoProcessada).build();
                 Double resultado = avaliadorExpressao.calculate();
 
                 String resultadoFormatado = String.format(Locale.US, "%.10f", resultado);
@@ -148,9 +145,60 @@ public class MainActivity extends AppCompatActivity {
                 textViewUltimaExpressao.setText("");
             }
         });
+    }
 
+    private String processarPorcentagem(String expressao) {
+        if (!expressao.contains("%")) {
+            return expressao;
+        }
 
+        StringBuilder resultado = new StringBuilder();
+        int i = 0;
+        while (i < expressao.length()) {
+            if (expressao.charAt(i) == '%' && i > 0) {
+                int fimPercentual = i;
+                int inicioPercentual = i - 1;
+                while (inicioPercentual >= 0 && (Character.isDigit(expressao.charAt(inicioPercentual)) || expressao.charAt(inicioPercentual) == '.')) {
+                    inicioPercentual--;
+                }
+                String valorPercentual = expressao.substring(inicioPercentual + 1, fimPercentual);
 
+                int inicioOperador = inicioPercentual;
+                while (inicioOperador >= 0 && Character.isWhitespace(expressao.charAt(inicioOperador))) {
+                    inicioOperador--;
+                }
+                boolean isPercentageContext = inicioOperador >= 0 && (expressao.charAt(inicioOperador) == '+' || expressao.charAt(inicioOperador) == '-');
+
+                if (isPercentageContext) {
+                    int inicioBase = inicioOperador - 1;
+                    while (inicioBase >= 0 && (Character.isDigit(expressao.charAt(inicioBase)) || expressao.charAt(inicioBase) == '.' || Character.isWhitespace(expressao.charAt(inicioBase)))) {
+                        inicioBase--;
+                    }
+                    String numeroBase = expressao.substring(inicioBase + 1, inicioOperador).trim();
+
+                    if (!numeroBase.isEmpty() && !valorPercentual.isEmpty()) {
+                        try {
+                            Double.parseDouble(numeroBase);
+                            Double.parseDouble(valorPercentual);
+                            resultado.setLength(resultado.length() - valorPercentual.length());
+                            resultado.append("(").append(numeroBase).append("*").append(valorPercentual).append("/100)");
+                        } catch (NumberFormatException e) {
+                            resultado.append("%");
+                        }
+                    } else {
+                        resultado.append("%");
+                    }
+                } else {
+                    resultado.append("%");
+                }
+                i++;
+            } else {
+                resultado.append(expressao.charAt(i));
+                i++;
+            }
+        }
+
+        return resultado.toString();
     }
 
     private final View.OnClickListener listenerNumerico = new View.OnClickListener() {
