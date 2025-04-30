@@ -98,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
         buttonDelete.setOnClickListener(view -> {
             if (expressaoAritmetica.length() > 0) {
                 expressaoAritmetica.deleteCharAt(expressaoAritmetica.length() - 1);
-                textViewResultado.setText(expressaoAritmetica.toString());
+                String expressaoExibicao = expressaoAritmetica.toString().replace(".", ",");
+                textViewResultado.setText(expressaoExibicao.isEmpty() ? "0" : expressaoExibicao);
             }
         });
 
