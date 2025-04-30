@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
-import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
             R.id.buttonSomaID
     };
 
-    private int[] idsBotoes = {
+    private final int[] idsBotoes = {
             R.id.buttonZeroID,
             R.id.buttonUmID,
             R.id.buttonDoisID,
@@ -106,13 +105,15 @@ public class MainActivity extends AppCompatActivity {
         buttonVirgula = findViewById(R.id.buttonVirgulaID);
         buttonVirgula.setOnClickListener(view -> {
             expressaoAritmetica.append(",");
-            textViewResultado.setText(expressaoAritmetica.toString());
+            String expressaoExibicao = expressaoAritmetica.toString().replace(".", ",");
+            textViewResultado.setText(expressaoExibicao);
         });
 
         buttonPorcento = findViewById(R.id.buttonPorcentoID);
         buttonPorcento.setOnClickListener(view -> {
             expressaoAritmetica.append("%");
-            textViewResultado.setText(expressaoAritmetica.toString());
+            String expressaoExibicao = expressaoAritmetica.toString().replace(".", ",");
+            textViewResultado.setText(expressaoExibicao);
         });
 
         buttonIgual = findViewById(R.id.buttonIgualID);
@@ -214,12 +215,13 @@ public class MainActivity extends AppCompatActivity {
             Button botaoClicado = (Button) view;
             String valor = botaoClicado.getText().toString();
 
-            if (valor.equals("0") && expressaoAritmetica.length() > 0 && expressaoAritmetica.charAt(expressaoAritmetica.length() - 1) == '0') {
+            if (valor.equals("0") && expressaoAritmetica.length() == 1 && expressaoAritmetica.charAt(0) == '0') {
                 return;
             }
 
             expressaoAritmetica.append(valor);
-            textViewResultado.setText(expressaoAritmetica.toString());
+            String expressaoExibicao = expressaoAritmetica.toString().replace(".", ",");
+            textViewResultado.setText(expressaoExibicao);
         }
     };
 
@@ -230,7 +232,8 @@ public class MainActivity extends AppCompatActivity {
             String operador = botao.getText().toString();
 
             expressaoAritmetica.append(operador);
-            textViewResultado.setText(expressaoAritmetica.toString());
+            String expressaoExibicao = expressaoAritmetica.toString().replace(".", ",");
+            textViewResultado.setText(expressaoExibicao);
         }
     };
 }
