@@ -116,28 +116,34 @@ public class MainActivity extends AppCompatActivity {
 
         buttonIgual = findViewById(R.id.buttonIgualID);
         buttonIgual.setOnClickListener(view -> {
+            String expressaoCalculada = expressaoAritmetica.toString()
+                    .replace("÷", "/")
+                    .replace("×", "*")
+                    .replace(",", ".");
             try {
-                String expressaoCalculada = expressaoAritmetica.toString()
-                        .replace("÷", "/")
-                        .replace("×", "*");
-
                 String expressaoProcessada = processarPorcentagem(expressaoCalculada);
 
-                Calculable avaliadorExpressao = new ExpressionBuilder(expressaoProcessada).build();
-                Double resultado = avaliadorExpressao.calculate();
+                Double resultado = new ExpressionBuilder(expressaoProcessada).build().calculate();
 
                 String resultadoFormatado = String.format(Locale.US, "%.10f", resultado);
-                resultadoFormatado = resultadoFormatado.replaceAll("\\.?0+$", "");
+                if (resultadoFormatado.contains(".")) {
+                    resultadoFormatado = resultadoFormatado.replaceAll("\\.0*(\\d*?)0*$", ".$1");
+                    if (resultadoFormatado.endsWith(".")) {
+                        resultadoFormatado += "0";
+                    }
+                }
+
+                String resultadoExibicao = resultadoFormatado.replace(".", ",");
 
                 textViewUltimaExpressao.setText(expressaoAritmetica.toString());
-                textViewResultado.setText(resultadoFormatado);
+                textViewResultado.setText(resultadoExibicao);
 
                 expressaoAritmetica.setLength(0);
                 expressaoAritmetica.append(resultadoFormatado);
 
                 houveResultado = true;
             } catch (Exception e) {
-                Log.d(TAG, "Erro na expressão: " + e.getMessage());
+                Log.e(TAG, "Erro ao calcular expressão: " + expressaoCalculada, e);
                 Toast.makeText(MainActivity.this, "Expressão inválida", Toast.LENGTH_SHORT).show();
                 expressaoAritmetica.setLength(0);
                 expressaoAritmetica.append("0");
